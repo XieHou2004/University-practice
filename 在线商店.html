@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="实验三.css">
+<title>在线商店</title>
+</head>
+<style>
+  
+body {
+font-family: Arial, sans-serif;
+margin: 0;
+padding: 20px;
+}
+
+h1 {
+text-align: center;
+}
+
+#products {
+float: left; /* 使商品展示区域浮动在左侧 */
+width: 60%; /* 占据容器宽度的60% */
+margin-right: 20px; /* 右侧外边距 */
+}
+
+#products h2 {
+color: #333;
+}
+
+#products ul {
+list-style-type: none; /* 移除默认的列表样式 */
+padding: 0;
+}
+
+#products li {
+padding: 10px;
+border: 1px solid #ddd; /* 添加边框 */
+margin-bottom: 10px; /* 下方外边距 */
+background-color: #f9f9f9; /* 背景色 */
+}
+
+#products li:hover {
+background-color: #f0f0f0; /* 鼠标悬停时的背景色 */
+}
+
+#products h3 {
+margin-top: 0;
+}
+
+#products p {
+margin: 5px 0;
+}
+
+#products button {
+background-color: #4CAF50; /* 绿色 */
+border: none;
+color: white;
+padding: 8px 16px;
+text-align: center;
+text-decoration: none;
+display: inline-block;
+font-size: 16px;
+margin: 10px 0;
+cursor: pointer;
+}
+
+#products button:hover {
+background-color: #45a049; /* 鼠标悬停时的绿色 */
+}
+
+/* 购物车区域的样式 */
+#shopping-cart {
+float: left; /* 使购物车区域浮动在左侧，紧随商品展示区域之后 */
+width: 30%; /* 占据容器宽度的30% */
+max-width: 300px; /* 最大宽度限制 */
+}
+
+#shopping-cart ul {
+list-style-type: none;
+padding: 0;
+}
+
+#shopping-cart li {
+padding: 10px;
+border-bottom: 1px solid #ddd;
+}
+
+#shopping-cart button {
+float: right; /* 删除按钮浮动到右侧 */
+background-color: #f44336; /* 红色 */
+color: white;
+border: none;
+padding: 5px 10px;
+text-align: center;
+text-decoration: none;
+font-size: 14px;
+cursor: pointer;
+}
+
+#shopping-cart button:hover {
+background-color: #d32f2f; /* 鼠标悬停时的红色 */
+}
+
+#total-price {
+font-weight: bold;
+margin-bottom: 10px;
+}
+
+/* 响应式布局调整 */
+@media (max-width: 768px) {
+#products, #shopping-cart {
+    float: none;
+    width: 100%;
+    margin: 0 0 20px;
+}
+}
+
+</style>
+<body>
+
+
+<h1>在线商店</h1>
+
+<!-- 商品展示区域 -->
+<section id="products">
+  <h2>商品列表</h2>
+  <ul>
+    <li>
+      <h3>商品A</h3>
+      <p>价格: ¥100</p>
+      <p>商品A的描述...</p>
+      <button onclick="addToCart('商品A', 100)">添加到购物车</button>
+    </li>
+    <li>
+      <h3>商品B</h3>
+      <p>价格: ¥150</p>
+      <p>商品B的描述...</p>
+      <button onclick="addToCart('商品B', 150)">添加到购物车</button>
+    </li>
+    <!-- 更多商品 -->
+  </ul>
+</section>
+
+<!-- 购物车区域 -->
+<section id="shopping-cart">
+    <h2>购物车</h2>
+    <p id="total-price">总价: ¥0</p>
+    <ul id="cart-items"></ul>
+    <button id="checkout-btn" onclick="checkOut()">结算</button>
+</section>
+  
+<script>
+// 模拟的购物车数据存储
+var cart = [];
+
+// 添加商品到购物车，同时生成一个唯一的ID
+function addToCart(productName, price) {
+  var item = { id: Date.now(), name: productName, price: price }; // 使用当前时间戳作为唯一ID
+  cart.push(item);
+  updateCartDisplay();
+}
+
+// 从购物车中删除指定的商品实例
+function removeFromCart(itemId) {
+  cart = cart.filter(function(item) {
+    return item.id !== itemId;
+  });
+  updateCartDisplay();
+}
+// 更新购物车显示
+function updateCartDisplay() {
+  var cartItemsElement = document.getElementById('cart-items');
+  cartItemsElement.innerHTML = '';
+  var totalPrice = 0;
+
+  cart.forEach(function(item) {
+    var li = document.createElement('li');
+    li.textContent = item.name + ' - ¥' + item.price;
+
+    var removeBtn = document.createElement('button');
+    removeBtn.textContent = '删除';
+    removeBtn.addEventListener('click', function() {
+      removeFromCart(item.id); // 传递商品的唯一ID来删除
+    });
+
+    li.appendChild(removeBtn);
+    cartItemsElement.appendChild(li);
+    totalPrice += item.price;
+  });
+
+  var totalPriceElement = document.getElementById('total-price');
+  totalPriceElement.textContent = '总价: ¥' + totalPrice;
+  totalPriceElement.style.display = totalPrice > 0 ? 'block' : 'none';
+
+  var shoppingCartElement = document.getElementById('shopping-cart');
+  shoppingCartElement.style.display = cart.length > 0 ? 'block' : 'none';
+
+  var checkoutBtn = document.getElementById('checkout-btn');
+  checkoutBtn.disabled = cart.length === 0;
+}
+
+// 结算购物车
+function checkOut() {
+  if (cart.length > 0) {
+    var totalPrice = getTotalPrice();
+    alert('结算 ' + cart.length + ' 个商品，总价为 ¥' + totalPrice + '！');
+    // 这里可以添加结算逻辑，例如发送请求到服务器
+
+    // 清空购物车
+    cart = [];
+    updateCartDisplay();
+  } else {
+    alert('您的购物车为空！');
+  }
+}
+// 页面加载时，如果有已保存的购物车数据，可以调用此函数来初始化显示
+window.onload = function() {
+  updateCartDisplay();
+};
+// 获取购物车总价
+function getTotalPrice() {
+  return cart.reduce(function(total, item) {
+    return total + item.price;
+  }, 0);
+}
+</script>
+
+</body>
+</html>
